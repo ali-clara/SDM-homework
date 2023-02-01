@@ -14,7 +14,7 @@ if __name__ == "__main__":
         for y in range(m.rows):
             state = (x,y)
             assert m.state_from_index(m.index_from_state(state))==state, "Mapping incorrect for state: {state}".format(state=state)
-    m.plot_path(path, 'Maze2D')
+    # m.plot_path(path, 'Maze2D')
 
     m2 = Maze4D.from_pgm('maze2.pgm')
     for x in range(m2.cols):
@@ -30,6 +30,9 @@ if __name__ == "__main__":
     print('Neighbors of start position:')
     print([m2.state_from_index(pos) for pos in m2.get_neighbors(m2.start_index)])
     path = np.array([(0,0),(0,1),(0,2),(1,2),(2,2)])
+
+    a = m2.goal_state
+    print(((a[0], a[1]), (a[2], a[3])))
 
     # m2.plot_path(path, 'Maze4D')
 

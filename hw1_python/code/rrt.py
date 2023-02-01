@@ -109,6 +109,8 @@ class RRT():
         # print(parent_node_index, parent_node_pos)
         
     def find_path(self, final_vertex):
+        """Recovers path from final node
+            Returns - none"""
         self.path.append(final_vertex.pos)
         parent_node = self.find_parent_node(final_vertex)
         # backtrack through the parent nodes
@@ -129,7 +131,7 @@ class RRT():
             
             # print(sample_point, nearest_vertex, new_vertex)
             if new_vertex is not None:
-                if not self.maze.check_occupancy(new_vertex):
+                if not self.maze.check_occupancy(np.round(new_vertex)):
                     vertex.pos = new_vertex
                     vertex.parent = nearest_vertex
                     self.tree.append(vertex)
@@ -149,7 +151,7 @@ if __name__ == "__main__":
     start = time.time()
     rrt.do_rrt()
     end = time.time()
-    m1.plot_path(rrt.path, 'Maze1, 2D, RRT \n'
+    m1.plot_path(rrt.path, '2D, RRT \n'
                             'Path Length: '+str(np.round(rrt.calc_path_length(), 2)) +
                             ', Runtime: '+str(np.round(end-start, 4))+' sec')
 
@@ -157,13 +159,7 @@ if __name__ == "__main__":
     # start = time.time()
     # rrt.do_rrt()
     # end = time.time()
-    # m2.plot_path(rrt.path, 'Maze2, 2D, RRT \n'
-                            # 'Path Length: '+str(np.round(rrt.calc_path_length(), 2)) +
-                            # ', Runtime: '+str(np.round(end-start, 4))+' sec')
-
-"""
-struct{x, y, parent, cost to come}
-
-plot the path, folow the parent back to the start
-"""
+    # m2.plot_path(rrt.path, '2D, RRT \n'
+    #                         'Path Length: '+str(np.round(rrt.calc_path_length(), 2)) +
+    #                         ', Runtime: '+str(np.round(end-start, 4))+' sec')
 
