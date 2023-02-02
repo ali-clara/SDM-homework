@@ -45,7 +45,10 @@ class AStar():
             return cost_to_come
         elif self.maze_dimension == "4D":
             velocity = np.sqrt(neighbor.pos[2]**2 + neighbor.pos[3]**2)
-            cost_to_come = n_best.cost + dist_from_nbest / velocity
+            if velocity == 0:
+                cost_to_come = n_best.cost
+            else:
+                cost_to_come = n_best.cost + dist_from_nbest / velocity
             return cost_to_come
 
     def euclidian_heuristic(self, current_state, use_epsilon=False, epsilon=None):
@@ -118,37 +121,17 @@ class AStar():
 
         self.path_length = path_length
         return path_length
-            
-    def tabulate_data(self, epsilon_array, runtime_array):
-
-        # ensure we have up-to-date path length
-        self.calc_path_length()
-
-        run_time = [str(runtime) for runtime in runtime_array]
-        epsilon = [ep for ep in epsilon_array]
-
-        data = []
-
-        # initialize dataframe columns and first row
-        initialize = [{"initialize": 0}]
-        # data.append(initialize)
-        df = pd.DataFrame(initialize)
-        for runtime in runtime_array:
-            df.insert(0, "Nodes (RT "+str(runtime)+")", self.nodes_expanded)
-            df.insert(0, "Path (RT "+str(runtime)+")", self.path_length)
-        df.drop(columns=["initialize"], inplace=True)
-        df.insert(0, "Epsilon", epsilon_array[0])
-        df.loc[len(df.index)] = [0, 0, 0, 0, 0, 0, 0]
-
-        print(df)
-
-
     
-    def do_astar(self, use_epsilon=False, epsilon=None):
+    def do_astar(self, use_epsilon=False, epsilon=None, runtime=100):
         """Runs the A* algorithm and saves the final path in self.path
             Returns - none"""
+        start = time.time()
         iter = 0
         while len(self.open_list) != 0:
+            if time.time() - start > runtime:
+                print(f'Exceeded runtime of {runtime} sec')
+                break
+
             iter += 1
             # find loweset priority node and remove from open list
             n_best = self.get_nbest()
@@ -191,6 +174,19 @@ class AStar():
 
         self.nodes_expanded = iter
 
+def tabulate_data(epsilon):
+
+        # initialize dataframe columns and first row
+        initialize = [{"initialize": 0}]
+        df = pd.DataFrame(initialize)
+        df.insert(0, "Nodes", 0)
+        df.insert(0, "Path", 0)
+        df.drop(columns=["initialize"], inplace=True)
+        df.insert(0, "Epsilon", epsilon)
+        df.drop([0], axis=0, inplace=True)
+
+        return df
+
 if __name__ == "__main__":
     
     m1 = Maze2D.from_pgm('maze1.pgm')
@@ -210,29 +206,37 @@ if __name__ == "__main__":
         print(astar.nodes_expanded)
 
     def run_greedy_astar(maze, dimension):
+        runtime = 1000
         epsilon = 10
-        epsilon_array = []
-        runtime_array = [0.05, 0.25, 1]
+        df = tabulate_data(epsilon)
+        
         while epsilon != 1:
-            epsilon_array.append(epsilon)
-            start = time.time()
             astar = AStar(maze.start_state, maze.goal_state, maze, dimension)
-            astar.do_astar(use_epsilon=True, epsilon=epsilon)
-            end = time.time()
-            # astar.maze.plot_path(astar.path, dimension+ ', Epsilon: '+str(epsilon)+', A* \n'
-            #                     'Path Length: '+str(np.round(astar.calc_path_length(),2)) +
-            #                     ', Nodes Expanded: '+str(astar.nodes_expanded))
+            astar.do_astar(use_epsilon=True, epsilon=epsilon, runtime=runtime)
+            astar.maze.plot_path(astar.path, dimension+ ', Epsilon: '+str(epsilon)+', A* \n'
+                                'Path Length: '+str(np.round(astar.calc_path_length(),2)) +
+                                ', Nodes Expanded: '+str(astar.nodes_expanded))
+
+            # ensure we have up-to-date path length
+            astar.calc_path_length()
+            # add info to dataframe
+            df.loc[len(df.index)] = [epsilon, astar.path_length, astar.nodes_expanded]
+
             epsilon = epsilon - 0.5*(epsilon - 1)
             if epsilon < 1.001:
                 epsilon = 1
-        astar.tabulate_data(epsilon_array, runtime_array)
+
+        print(f"Runtime {runtime} sec")
+        print(df)
+
+        
 
     # run_astar(m1, "2D")
     # run_astar(m2, "2D")
     # run_astar(m1_4d, "4D")
-    # run_astar(m2_4d, "4D")
+    run_astar(m2_4d, "4D")
 
-    run_greedy_astar(m1, "2D")
+    # run_greedy_astar(m2_4d, "4D")
 
 
 
