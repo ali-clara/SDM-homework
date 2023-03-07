@@ -1,18 +1,18 @@
 __author__ = 'Caleytown'
 
-import gzip
+import time
 import numpy as np
 from PIL import Image
 from RobotClass import Robot
 from GameClass import Game
 from GreedyNavigator import GreedyNavigator
+from GreedyEntropyNavigator import EntropyNavigator
+from LookaheadNavigator import LookaheadNavigator
 from networkFolder.functionList import Map, WorldEstimatingNetwork, DigitClassificationNetwork
 
 class Solver():
 
-    def __init__(self, navigator):
-        # Create a Map Class Object
-        map = Map()
+    def __init__(self, navigator, map):
         # Print the number of the current map
         self.ground_truth = map.number
         print(f"Ground truth: {self.ground_truth}")
@@ -43,7 +43,7 @@ class Solver():
         baseline_nonzero_mask = np.nonzero(baseline)
         baseline_nonzero = baseline[baseline_nonzero_mask]
 
-        threshold = 3
+        threshold = 3.5
         if all(np.abs(baseline_nonzero) > threshold):
             return True
         else:
@@ -102,7 +102,7 @@ class Solver():
     
     def run_solver(self, display=False):
         """implement the algorithm"""
-        for i in range(1000):
+        for i in range(5000):
             self.game.tick()
             mask = self.create_world_mask()
             world_estimate = self.world_estimate_net.runNetwork(self.game.exploredMap, mask)
@@ -134,5 +134,27 @@ class Solver():
 
 if __name__ == "__main__":
     # The GreedyNavigator class makes the robot move in the direction that maximizes pixel values
-    solver = Solver(GreedyNavigator())
-    solver.run_solver(display=True)
+    # map = Map()
+    # rewards = []
+    # runtimes = []
+    # for i in range(10):
+    #     start = time.time()
+    #     print(f"Trial {i}")
+    #     map.getNewMap()
+    #     # solver = Solver(EntropyNavigator(), map)
+    #     # solver = Solver(GreedyNavigator(), map)
+    #     solver = Solver(LookaheadNavigator(), map)
+    #     solver.run_solver(display=False)
+    #     rewards.append(solver.game.score)
+    #     end = time.time()
+    #     runtime = end-start
+    #     runtimes.append(runtime)
+    # print(rewards)
+    # print(f"Average: {np.mean(np.array(rewards))}")
+    # print(runtimes)
+    # print(f"Average: {np.mean(np.array(runtimes))}")
+
+    scores = [20, 42, -804, -1553, 60, -119, -7677, -8719, -368]
+    print(np.mean(scores))
+
+   

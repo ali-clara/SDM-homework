@@ -8,6 +8,7 @@ from RobotClass import Robot
 from GameClass import Game
 from RandomNavigator import RandomNavigator
 from GreedyNavigator import GreedyNavigator
+from CustomNavigator import CustomNavigator
 from networkFolder.functionList import Map, WorldEstimatingNetwork, DigitClassificationNetwork
 
 # Create a Map Class Object
@@ -29,7 +30,8 @@ robot = Robot(0, 0)
 # The RandomNavigator class makes the robot move in random directions
 # TODO: You will want to write other navigators with different exploration strategies.
 # navigator = RandomNavigator()
-navigator = GreedyNavigator()
+# navigator = GreedyNavigator()
+navigator = CustomNavigator()
 
 # Create a Game object, providing it with the map data, the goal location of the map, the navigator, and the robot
 game = Game(data, map.number, navigator, robot)
@@ -72,17 +74,6 @@ Image.fromarray(image).show()
 char = classNet.runNetwork(image)
 # get the most likely digit 
 # print(char[0])
-estimate_array = np.abs(np.array(char[0]))
-smallest = np.min(estimate_array)
-baseline_sub = estimate_array - smallest
-baseline_nonzero_mask = np.nonzero(baseline_sub)
-baseline_nonzero = baseline_sub[baseline_nonzero_mask]
-
-print(estimate_array)
-print(baseline_sub)
-print(baseline_nonzero)
-if all(np.abs(baseline_nonzero) > 1.5):
-    print("confident in this answer")
 
 print(char.argmax())
 # print(char.argmin())

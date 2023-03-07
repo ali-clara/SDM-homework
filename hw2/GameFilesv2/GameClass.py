@@ -22,6 +22,7 @@ class Game:
         self._updateMap(self.robot, self.exploredMap, self.truthMap)
         self.score = 0
         self.iterations = 0
+        self.last_action = "right"
 
     def tick(self, action=None):
         self.iterations += 1
